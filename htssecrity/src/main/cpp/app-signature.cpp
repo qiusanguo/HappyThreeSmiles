@@ -3,7 +3,7 @@
 //
 
 const char HEX_CODE[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-const char *APP_SIGNATURE = "6C97D7FC026DB630523D6ECA15941129F62B0083";
+const char *APP_SIGNATURE = "D0030147F0841E0DBBD8A861A69AD5CDB8A4C69E";
 char *appSha1 = NULL;
 
 

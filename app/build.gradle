@@ -11,10 +11,23 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk { abiFilters 'armeabi-v7a' }
     }
+    signingConfigs {
+        release {
+            storeFile file("../hsm.jks")
+            storePassword "147258369"
+            keyAlias "hsm"
+            keyPassword "147258369"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.release
         }
     }
 }
