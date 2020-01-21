@@ -1,13 +1,54 @@
 //
-// Created by qj on 2020/1/8.
+// Created by qj on 2020/1/3.
 //
 
 
 #include <jni.h>
 #include <string>
-#include "app-signature.cpp"
+#include "app-validate.cpp"
+#include "hts-aes.cpp"
+#include "hts-base64.cpp"
 
 extern "C" {
+
+
+    //数据加密
+    JNIEXPORT jstring JNICALL
+    Java_com_hts_security_sdk_SecurityUtil_encrypt(
+            JNIEnv* env,
+            jobject,jstring data) {
+        const char *source = env->GetStringUTFChars(data,0);
+        unsigned char aeskey[]="123456789abcdefg";
+        int srcLen = strlen(source);
+
+        int outLen;
+        unsigned char *result = aes_encrypt((unsigned char*)source,srcLen,(unsigned char*)aeskey,16,&outLen);
+        string base64Str = base64_encode((const char * )result,outLen);
+        jstring jsStr =  env->NewStringUTF(base64Str.c_str());
+        free(result);
+        env->ReleaseStringUTFChars(data, source);
+        return jsStr;
+    }
+
+    //数据解密
+    JNIEXPORT jstring JNICALL
+    Java_com_hts_security_sdk_SecurityUtil_decrypt(
+            JNIEnv* env,
+            jobject,jstring data) {
+        const char *source = env->GetStringUTFChars(data,0);
+        unsigned char aeskey[]="123456789abcdefg";
+        //base64 decode
+        int out_length_base64;
+        char * base64DecodeChar = base64_decode(source,strlen(source),&out_length_base64);
+        //aes decrypt
+        int outLen;
+        unsigned char *decryptChar = aes_decrypt((unsigned char*)base64DecodeChar,out_length_base64,(unsigned char*)aeskey,16,&outLen);
+        string result((const char *)decryptChar,outLen);
+        free(decryptChar);
+        free(base64DecodeChar);
+        env->ReleaseStringUTFChars(data, source);
+        return env->NewStringUTF(result.c_str());
+    }
 
     JNIEXPORT jint JNICALL
     JNI_OnLoad(JavaVM *vm, void *reserved) {
