@@ -19,3 +19,7 @@
 [APP安全(一)-防二次打包（C、C++签名校验）](https://blog.csdn.net/mrRuby/article/details/104046640)
 
 [APP安全(二)-c、c++AES实现加解密](https://blog.csdn.net/mrRuby/article/details/104064606)
+
+
+# 三、 如果对你项目有帮助，可小小鼓励一下
+
