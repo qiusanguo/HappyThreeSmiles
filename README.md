@@ -21,5 +21,8 @@
 [APP安全(二)-c、c++AES实现加解密](https://blog.csdn.net/mrRuby/article/details/104064606)
 
 
-# 三、 如果对你项目有帮助，可小小鼓励一下
+# 四、 如果对你项目有帮助，可小小鼓励一下
+
+![image](https://github.com/qiusanguo/HappyThreeSmiles/blob/master/img/alpay.png)
+
 
