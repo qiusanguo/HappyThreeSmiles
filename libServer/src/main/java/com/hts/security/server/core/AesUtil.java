@@ -19,7 +19,7 @@ public class AesUtil {
 
 
     /**
-     *  encrypt data
+     * encrypt data
      * @param key
      * @param data
      * @return

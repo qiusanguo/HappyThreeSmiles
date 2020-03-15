@@ -2,9 +2,19 @@
 // Created by qj on 2020/1/3.
 //
 
+#include <string>
+#include <vector>
+#include <iostream>
+#include "hts-des.cpp"
+#include <android/asset_manager_jni.h>
+using namespace std;
+
 const char HEX_CODE[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 const char *APP_SIGNATURE = "D0030147F0841E0DBBD8A861A69AD5CDB8A4C69E";
 char *appSha1 = NULL;
+string file_aes;
+string file_sha1;
+string file_pkg;
 
 
 /**
@@ -77,7 +87,7 @@ char* getAppSha1(JNIEnv *env, jobject context_object){
  */
 jboolean checkSignature(JNIEnv *env, jobject context){
    const char *appSignatureSha1 = getAppSha1(env,context);
-   jstring releaseSignature = env->NewStringUTF(APP_SIGNATURE);
+   jstring releaseSignature = env->NewStringUTF(file_sha1.c_str());
    jstring appSignature = env->NewStringUTF(appSignatureSha1);
    const char *charAppSignature = env->GetStringUTFChars(appSignature, NULL);
    const char *charReleaseSignature = env->GetStringUTFChars(releaseSignature, NULL);
@@ -115,14 +125,64 @@ jobject getApplication(JNIEnv *env){
 
 /**
  *
+ *get security file info
+ *
+ */
+jboolean getSecurityFile(JNIEnv *env, jobject context){
+    jclass context_class = env->GetObjectClass(context);
+    jmethodID methodId= env->GetMethodID(context_class,"getAssets","()Landroid/content/res/AssetManager;");
+    jobject asset_manager = env->CallObjectMethod(context, methodId);
+    AAssetManager *mgr = AAssetManager_fromJava(env, asset_manager);
+    AAsset* asset = AAssetManager_open(mgr, "htsSec", AASSET_MODE_UNKNOWN);
+    if(!asset){
+        return JNI_FALSE;
+    }
+    int assetLength = AAsset_getLength(asset);
+    char* buffer = (char*)malloc(assetLength);
+    memset(buffer,0x00,assetLength);
+    AAsset_read(asset,buffer,assetLength);
+
+    //ase decrypt
+    const char *desKey = "HtS&96$0";
+    int outLen;
+    unsigned char * decryptChar = des_decrypt((unsigned char *)buffer,assetLength,(unsigned char *)desKey,8,&outLen);
+    string result((const char *)decryptChar,outLen);
+
+    string::size_type pos1,pos2;
+    string split = ";";
+    pos2 = result.find(split);
+    vector<string> v;
+    pos1 = 0;
+    while(string::npos != pos2){
+        v.push_back(result.substr(pos1, pos2-pos1));
+        pos1 = pos2 + split.size();
+        pos2 = result.find(split, pos1);
+    }
+    if(pos1 != result.length())
+    v.push_back(result.substr(pos1));
+    if(v.size() != 3) return JNI_FALSE;
+    file_sha1 = v[0];
+    file_pkg = v[1];
+    file_aes = v[2];
+
+    free(decryptChar);
+    free(buffer);
+    AAsset_close(asset);
+    return JNI_TRUE;
+
+}
+
+/**
+ *
  *validate signature
  *
  */
 jboolean checkSignature(JNIEnv *env){
     jobject appContext = getApplication(env);
     if(appContext != NULL){
-        return checkSignature(env,appContext);
+        if(getSecurityFile(env,appContext)){
+            return checkSignature(env,appContext);
+        }
     }
-
     return JNI_FALSE;
 }
