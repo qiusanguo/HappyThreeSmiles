@@ -8,6 +8,8 @@
 #include "app-validate.cpp"
 #include "hts-aes.cpp"
 #include "hts-base64.cpp"
+#include "hts-aes-key.cpp"
+string MY_AES_KEY = "";
 
 extern "C" {
 
@@ -18,11 +20,12 @@ extern "C" {
             JNIEnv* env,
             jobject,jstring data) {
         const char *source = env->GetStringUTFChars(data,0);
-        unsigned char aeskey[]="123456789abcdefg";
+        if(MY_AES_KEY.empty()){
+            MY_AES_KEY = createKey(file_aes);
+        }
         int srcLen = strlen(source);
-
         int outLen;
-        unsigned char *result = aes_encrypt((unsigned char*)source,srcLen,(unsigned char*)aeskey,16,&outLen);
+        unsigned char *result = aes_encrypt((unsigned char*)source,srcLen,(unsigned char*)MY_AES_KEY.c_str(),16,&outLen);
         string base64Str = base64_encode((const char * )result,outLen);
         jstring jsStr =  env->NewStringUTF(base64Str.c_str());
         free(result);
@@ -35,14 +38,17 @@ extern "C" {
     Java_com_hts_security_sdk_SecurityUtil_decrypt(
             JNIEnv* env,
             jobject,jstring data) {
-        const char *source = env->GetStringUTFChars(data,0);
-        unsigned char aeskey[]="123456789abcdefg";
+        const char* source = env->GetStringUTFChars(data,0);
+
+        if(MY_AES_KEY.empty()){
+            MY_AES_KEY = createKey(file_aes);
+        }
         //base64 decode
         int out_length_base64;
         char * base64DecodeChar = base64_decode(source,strlen(source),&out_length_base64);
         //aes decrypt
         int outLen;
-        unsigned char *decryptChar = aes_decrypt((unsigned char*)base64DecodeChar,out_length_base64,(unsigned char*)aeskey,16,&outLen);
+        unsigned char *decryptChar = aes_decrypt((unsigned char*)base64DecodeChar,out_length_base64,(unsigned char*)MY_AES_KEY.c_str(),16,&outLen);
         string result((const char *)decryptChar,outLen);
         free(decryptChar);
         free(base64DecodeChar);
