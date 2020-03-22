@@ -1,4 +1,4 @@
-package com.hts.security.app;
+package com.teach.zhly.testaarandjar;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,7 +12,7 @@ import com.hts.security.server.util.HtsSecurityUtil;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView tvSrc,tvData;
+    private TextView tvSrc, tvData;
 
     private String data = "ipipoi*(*()*)(*三笑4874{“dddd”}";
 
@@ -20,19 +20,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        tvSrc =  findViewById(R.id.sample_text);
+        tvSrc = findViewById(R.id.sample_text);
         tvData = findViewById(R.id.tv_result);
-        HtsSecurityUtil.init("CD0E98545EB6ACAF4CADF31C0EB01CC7");
+        HtsSecurityUtil.init("9B94085A0427BC75A5AD699DDA5C6849");
     }
 
     public void onClick(View view) {
-        if(view.getId() == R.id.btn_encrypt){
+        if (view.getId() == R.id.btn_encrypt) {
             try {
                 encrypt();
             } catch (SecException e) {
                 e.printStackTrace();
             }
-        }else if(view.getId() == R.id.btn_decrypt){
+        } else if (view.getId() == R.id.btn_decrypt) {
             try {
                 decrypt();
             } catch (SecException e) {

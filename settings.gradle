@@ -1,1 +1,1 @@
-include ':app', ':htssecrity', ':libServer', ':libKey'
+include ':app', ':htssecrity', ':libServer', ':libKey', ':testaarandjar'

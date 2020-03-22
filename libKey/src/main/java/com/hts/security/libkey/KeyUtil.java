@@ -1,8 +1,11 @@
 package com.hts.security.libkey;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  *
@@ -15,38 +18,63 @@ import java.io.IOException;
  *
  *
  */
-
-
-public class GenerateKey {
+public class KeyUtil {
 
     private final static  String DES_KEY = "HtS&96$0";
 
-    //证书sha1
-    private static String jksSha1 = "D0030147F0841E0DBBD8A861A69AD5CDB8A4C69E";
-    //app 包名
-    private static String pkgName = "com.hts.security.app";
-    //
-    private static String aesSrc = "8098oiiIUIUJKJOYYU*23";
 
-    public static void main(String[] args){
+    /**
+     * 秘钥文件生成在当前项目根目录
+     * @param jksSha1
+     * @param pkgName
+     */
+    public static void generate(String jksSha1,String pkgName){
+        String tem = MD5Util.getMD5String(UUID.randomUUID().toString());
         StringBuilder sb = new StringBuilder();
         sb.append(jksSha1).append(";");
         sb.append(pkgName).append(";");
-        sb.append(aesSrc);
+        sb.append(tem);
         try{
             byte[] result = DesUtil.encrypt(DES_KEY,sb.toString());
-            //秘钥文件生成在当前项目根目录
             File directory = new File("");
             String saveFile = directory.getCanonicalPath()+File.separator +"libKey";
-            writeFile(result,saveFile);
+            String htsSecName = "htsSec";
+            String htsSeverName = "htsServer";
+            //write hts sec file
+            writeFile(result,saveFile,htsSecName);
+            //write hts  sec server file
+            writeStringToFile(tem,saveFile,htsSeverName);
         }catch (Exception ex){
             ex.printStackTrace();
         }
-
     }
 
+
+    private static void writeStringToFile(String data,String savePath,String fileName){
+        File file = new File(savePath);
+        if(!file.exists()) file.mkdirs();
+        File saveFile = new File(file, fileName);
+        if(saveFile.exists())saveFile.delete();
+        FileWriter fileWriter = null;
+        BufferedWriter bufferedWriter = null;
+        try {
+            fileWriter = new FileWriter(saveFile.getPath(),true);
+            bufferedWriter = new BufferedWriter(fileWriter);
+            bufferedWriter.write(data);
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }finally {
+            try {
+                if(bufferedWriter != null)bufferedWriter.close();
+                if(fileWriter != null)fileWriter.close();
+            }catch (Exception ex){}
+
+        }
+    }
+
+
     /**
-     * 保存生成的秘钥文件
+     * save key to  file
      * @param data
      * @param savePath
      * @param fileName

@@ -4,5 +4,10 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
+task myproguard(type: proguard.gradle.ProGuardTask) {
+    configuration 'proguard.txt'
+    injars 'build/libs/libServer.jar'
+    outjars 'build/libs/libProguard.jar'}
+
 sourceCompatibility = "7"
 targetCompatibility = "7"
